@@ -2,9 +2,25 @@
 
 __all__ = ["index", "modules", "custom_doc_links", "git_url"]
 
-index = {}
+index = {"Path.ls_sorted": "01_utils.ipynb",
+         "parse_distortion_severity": "02_wrangling.ipynb",
+         "parse_scene": "02_wrangling.ipynb",
+         "label_dataframe": "02_wrangling.ipynb",
+         "make_dataframe_splitter": "02_wrangling.ipynb",
+         "populate_frames": "02_wrangling.ipynb",
+         "make_framer": "02_wrangling.ipynb",
+         "remove_corrupt_video_frames": "02_wrangling.ipynb",
+         "make_dataframe": "02_wrangling.ipynb",
+         "make_train_dataframe": "02_wrangling.ipynb",
+         "assert_stratied_split": "02_wrangling.ipynb",
+         "ImageTuple": "03_dataloading.ipynb",
+         "ImageTupleBlock": "03_dataloading.ipynb",
+         "CombinedLoss": "04_model.ipynb"}
 
-modules = []
+modules = ["utils.py",
+           "wrangling.py",
+           "dataloading.py",
+           "model.py"]
 
 doc_url = "https://bdsaglam.github.io/vqa/"
 
