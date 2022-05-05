@@ -1,0 +1,19 @@
+name: vqa
+channels:
+- fastai
+- pytorch
+- defaults
+dependencies:
+- fastai>=2.6.3
+- nbdev
+- pytorch>=1.7.0
+- torchvision>=0.8
+- matplotlib
+- pandas
+- scikit-learn
+- scipy
+- pip
+- pip:
+  - wandb
+  - kaggle
+
