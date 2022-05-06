@@ -28,6 +28,7 @@ index = {"Path.ls_sorted": "01_utils.ipynb",
          "fill_preds": "08_inference.ipynb",
          "aggregate_preds": "08_inference.ipynb",
          "format_pred": "08_inference.ipynb",
+         "get_test_inferences": "08_inference.ipynb",
          "make_submission": "08_inference.ipynb",
          "most_freq": "08_inference.ipynb"}
 
