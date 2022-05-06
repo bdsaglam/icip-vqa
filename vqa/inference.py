@@ -26,11 +26,11 @@ from scipy.stats import mode
 most_freq = lambda seq: mode(seq)[0][0]
 
 def decode_preds(vocabs, preds):
-    for item_preds in zip(pred.cpu().numpy() for pred in preds):
-        yield [vocab[p] for vocab, p in zip(vocabs, item_preds)]
+    for distortion, severity in zip(preds[0].cpu().numpy(), preds[1].cpu().numpy()):
+        yield vocabs[0][distortion], vocabs[1][severity]
 
-def fill_preds(dataf, dls, preds):
-    pred_distortion, pred_severity =  list(zip(*list(decode_preds(dls, preds))))
+def fill_preds(dataf, vocabs, preds):
+    pred_distortion, pred_severity =  list(zip(*list(decode_preds(vocabs, preds))))
     dataf['distortion_preds'] = pred_distortion
     dataf['severity_preds'] = pred_severity
     return dataf
