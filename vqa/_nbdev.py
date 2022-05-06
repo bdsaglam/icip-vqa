@@ -43,6 +43,6 @@ modules = ["utils.py",
 
 doc_url = "https://bdsaglam.github.io/vqa/"
 
-git_url = "https://github.com/bdsaglam/vqa/tree/master/"
+git_url = "https://github.com/bdsaglam/icip-vqa/tree/master/"
 
 def custom_doc_links(name): return None

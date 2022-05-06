@@ -59,7 +59,7 @@ def get_test_inferences(dls, learn, tst_df):
         dls,
         learn.model,
         loss_func=learn.loss_func,
-        splitter=model.splitter
+        splitter=learn.model.splitter
     )
     probs, targets, preds = tst_learn.get_preds(dl=tst_dl, with_decoded=True)
     inference_df = aggregate_preds(fill_preds(tst_df, dls.vocab, preds))
