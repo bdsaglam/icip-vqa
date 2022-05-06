@@ -16,7 +16,7 @@ from fastai.metrics import F1Score, accuracy
 
 warnings.filterwarnings(action='ignore', category=UndefinedMetricWarning, module=r'.*')
 
-def evaluate_mtl(vocabs, targets, preds, show=False):
+def evaluate_mtl(vocabs, probs, targets, preds, show=False):
     for vocab, target, pred in zip(vocabs, targets, preds):
         label_indices = list(range(len(vocab)))
         y_true, y_pred = target.cpu().numpy(), pred.cpu().numpy()

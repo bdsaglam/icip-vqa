@@ -21,7 +21,7 @@ class CombinedLoss():
         ])
 
     def activation(self, outs):
-        return (getattr(loss_func, 'activation', noop)(out) for loss_func, out in zip(self.loss_funcs, outs))
+        return [getattr(loss_func, 'activation', noop)(out) for loss_func, out in zip(self.loss_funcs, outs)]
 
     def decodes(self, outs):
-        return (getattr(loss_func, 'decodes', noop)(out) for loss_func, out in zip(self.loss_funcs, outs))
+        return [getattr(loss_func, 'decodes', noop)(out) for loss_func, out in zip(self.loss_funcs, outs)]

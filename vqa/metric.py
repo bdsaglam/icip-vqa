@@ -6,7 +6,7 @@ __all__ = ['LearnerProxy', 'metric_route']
 
 from types import MethodType
 from fastcore.basics import GetAttr
-from fastai.metrics import AvgMetric
+from fastai.metrics import Metric, AvgMetric
 
 class LearnerProxy(GetAttr):
     _default = 'learn'
