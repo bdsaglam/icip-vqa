@@ -21,7 +21,9 @@ def metric_route(idx, metric):
     if isinstance(metric, type):
         metric = metric()
     if not isinstance(metric, Metric):
-        return AvgMetric(lambda preds, *targs, **kwargs: metric(preds[idx], targs[idx], **kwargs))
+        func = lambda preds, *targs, **kwargs: metric(preds[idx], targs[idx], **kwargs)
+        func.__name__ = metric.__name__
+        return AvgMetric(func)
     accumulate = metric.accumulate
     metric.accumulate = MethodType(lambda self, learn: accumulate(LearnerProxy(learn, idx)), metric)
     call = metric.__call__
