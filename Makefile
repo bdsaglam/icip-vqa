@@ -2,9 +2,9 @@
 SHELL := /bin/bash
 SRC = $(wildcard nbs/*.ipynb)
 
-all: vqa docs
+all: build docs
 
-vqa: $(SRC)
+build: $(SRC)
 	nbdev_build_lib
 	touch vqa
 

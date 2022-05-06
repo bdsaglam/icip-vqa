@@ -1,6 +1,13 @@
 {
   "vqa": {
     "Overview": "/",
-    "module name here": "core.html"
+    "Utilities": "utils.html",
+    "Data wrangling": "wrangling.html",
+    "Datablock": "datablock.html",
+    "Model and loss function": "loss.html",
+    "Metric": "metric.html",
+    "Model": "model.html",
+    "Evaluation": "evaluation.html",
+    "Inference": "inference.html"
   }
 }

@@ -5,10 +5,12 @@ __all__ = ['parse_distortion_severity', 'parse_scene', 'label_dataframe', 'make_
            'assert_stratied_split']
 
 # Cell
+
 from pathlib import Path
 import pandas as pd
 
 # Cell
+
 import re
 
 _pattern = re.compile('_(D\d)')
@@ -20,32 +22,25 @@ def parse_distortion_severity(video_name):
     assert sev_level in {1,2,3,4,5}
     return '_'.join(distortions), f"S{sev_level}"
 
-test_eq(('D0', 'S0'), parse_distortion_severity('Airport'))
-test_eq(('D9', 'S1'), parse_distortion_severity('Airport_D9_1'))
-test_eq(('D3_D5', 'S1'), parse_distortion_severity('Airport_D3_2_D5_1'))
-test_eq(('D2_D7_D9', 'S4'), parse_distortion_severity('Airport_D2_D7_D9_4'))
-
 # Cell
 
 def parse_scene(video_name):
     return video_name.split("_D", 1)[0].lower()
 
-test_eq('airport', parse_scene('Airport'))
-test_eq('airport', parse_scene('Airport_D2_D7_D9_4'))
-test_eq('airport', parse_scene('Airport_D2_3_D9_4'))
-
 # Cell
+
 def label_dataframe(df):
     df['scene'] = df['video_name'].apply(parse_scene)
-    df['raw_label'] = df['video_name'].apply(parse_distortion_severity)
-    df['distortion'] = df['raw_label'].apply(lambda t: t[0])
-    df['severity'] = df['raw_label'].apply(lambda t: t[1])
+    df['label'] = df['video_name'].apply(parse_distortion_severity)
+    df['distortion'] = df['label'].apply(lambda t: t[0])
+    df['severity'] = df['label'].apply(lambda t: t[1])
     return df
 
 # Cell
+
 from sklearn.model_selection import train_test_split
 
-def make_dataframe_splitter(valid_pct, strata='raw_label'):
+def make_dataframe_splitter(valid_pct, strata='label'):
     def stratified_split(df):
         _, val_index = train_test_split(df.index, test_size=valid_pct, stratify=df[strata])
         df['is_valid'] = False
@@ -54,6 +49,7 @@ def make_dataframe_splitter(valid_pct, strata='raw_label'):
     return stratified_split
 
 # Cell
+
 def populate_frames(df, frame_indices_list):
     for frame_indices in frame_indices_list:
         df = df.copy()
@@ -83,7 +79,8 @@ def remove_corrupt_video_frames(df):
 # Cell
 
 def make_dataframe(root):
-    df = pd.DataFrame(data=dict(video_path=[str(p) for p in sorted(root.ls())]))
+    video_paths = sorted([str(p) for p in root.ls() if not p.name.startswith('.')])
+    df = pd.DataFrame(data=dict(video_path=video_paths))
     df['video_name'] = df['video_path'].apply(lambda p: Path(p).name)
     return df
 
@@ -93,11 +90,10 @@ def make_train_dataframe(root, valid_pct, frame_indices_list):
     return (
         make_dataframe(root)
         .pipe(label_dataframe)
-        .pipe(make_df_splitter(valid_pct))
+        .pipe(make_dataframe_splitter(valid_pct))
         .pipe(make_framer(frame_indices_list))
         .pipe(remove_corrupt_video_frames)
     )
-
 
 # Cell
 

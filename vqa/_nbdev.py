@@ -13,14 +13,32 @@ index = {"Path.ls_sorted": "01_utils.ipynb",
          "make_dataframe": "02_wrangling.ipynb",
          "make_train_dataframe": "02_wrangling.ipynb",
          "assert_stratied_split": "02_wrangling.ipynb",
-         "ImageTuple": "03_dataloading.ipynb",
-         "ImageTupleBlock": "03_dataloading.ipynb",
-         "CombinedLoss": "04_model.ipynb"}
+         "ImageTuple": "03_datablock.ipynb",
+         "ImageTupleBlock": "03_datablock.ipynb",
+         "CombinedLoss": "04_loss.ipynb",
+         "LearnerProxy": "05_metric.ipynb",
+         "metric_route": "05_metric.ipynb",
+         "BaselineMTM": "06_model.ipynb",
+         "MultiScaleBackbone": "06_model.ipynb",
+         "MultiScaleMTM": "06_model.ipynb",
+         "SeqMTM": "06_model.ipynb",
+         "evaluate_mtl": "07_evaluation.ipynb",
+         "make_test_dataframe": "08_inference.ipynb",
+         "decode_preds": "08_inference.ipynb",
+         "fill_preds": "08_inference.ipynb",
+         "aggregate_preds": "08_inference.ipynb",
+         "format_pred": "08_inference.ipynb",
+         "make_submission": "08_inference.ipynb",
+         "most_freq": "08_inference.ipynb"}
 
 modules = ["utils.py",
            "wrangling.py",
-           "dataloading.py",
-           "model.py"]
+           "datablock.py",
+           "loss.py",
+           "metric.py",
+           "model.py",
+           "evaluation.py",
+           "inference.py"]
 
 doc_url = "https://bdsaglam.github.io/vqa/"
 

@@ -10,8 +10,29 @@ entries:
       title: Overview
       url: /
     - output: web,pdf
-      title: module name here
-      url: core.html
+      title: Utilities
+      url: utils.html
+    - output: web,pdf
+      title: Data wrangling
+      url: wrangling.html
+    - output: web,pdf
+      title: Datablock
+      url: datablock.html
+    - output: web,pdf
+      title: Model and loss function
+      url: loss.html
+    - output: web,pdf
+      title: Metric
+      url: metric.html
+    - output: web,pdf
+      title: Model
+      url: model.html
+    - output: web,pdf
+      title: Evaluation
+      url: evaluation.html
+    - output: web,pdf
+      title: Inference
+      url: inference.html
     output: web
     title: vqa
   output: web

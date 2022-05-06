@@ -4,10 +4,8 @@ channels:
 - pytorch
 - defaults
 dependencies:
-- fastai>=2.6.3
+- fastai~=2.5.5
 - nbdev
-- pytorch>=1.7.0
-- torchvision>=0.8
 - matplotlib
 - pandas
 - scikit-learn
