@@ -8,6 +8,7 @@ from types import MethodType
 from fastcore.basics import GetAttr
 from fastai.metrics import Metric, AvgMetric
 
+
 class LearnerProxy(GetAttr):
     _default = 'learn'
     def __init__(self, learn, idx):
