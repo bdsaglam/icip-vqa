@@ -4,14 +4,11 @@ channels:
 - pytorch
 - defaults
 dependencies:
-- fastai>=2.5.5
+- fastai>=2.6.3
 - nbdev
-- matplotlib
 - pandas
-- scikit-learn
-- scipy
 - pip
 - pip:
+  - black
+  - flake8
   - wandb
-  - kaggle
-
