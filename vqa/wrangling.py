@@ -2,7 +2,7 @@
 
 __all__ = ['parse_distortion_severity', 'parse_scene', 'label_dataframe', 'make_dataframe_splitter', 'populate_frames',
            'make_framer', 'remove_corrupt_video_frames', 'make_dataframe', 'make_train_dataframe',
-           'assert_stratied_split']
+           'assert_stratied_split', 'make_test_dataframe']
 
 # Cell
 
@@ -105,3 +105,12 @@ def assert_stratied_split(df, label_col):
     label_freqs['ratio'] = (label_freqs['val'] / label_freqs['train']).apply(abs)
     # assert that difference in class counts is less than 1% of dataset size
     assert ratio - 0.02 < label_freqs['ratio'].mean() < ratio + 0.02, label_freqs['ratio'].min()
+
+# Cell
+
+def make_test_dataframe(root, frame_indices_list):
+    return (
+        make_dataframe(root)
+        .pipe(label_dataframe)
+        .pipe(make_framer(frame_indices_list))
+    )
