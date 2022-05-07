@@ -3,6 +3,7 @@
 __all__ = ["index", "modules", "custom_doc_links", "git_url"]
 
 index = {"Path.ls_sorted": "01_utils.ipynb",
+         "flatten_dict": "01_utils.ipynb",
          "parse_distortion_severity": "02_wrangling.ipynb",
          "parse_scene": "02_wrangling.ipynb",
          "label_dataframe": "02_wrangling.ipynb",
