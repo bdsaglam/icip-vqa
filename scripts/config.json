@@ -94,10 +94,10 @@
             1.0,
             3.0
         ],
-        "fine_tune": true,
+        "fine_tune": false,
         "freeze_epochs": 1,
-        "epochs": 1,
-        "lr": 0.001
+        "epochs": 40,
+        "lr": 0.0001
     },
     "seed": 42,
     "idea": "search"
