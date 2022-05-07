@@ -154,6 +154,15 @@ def setup_experiment():
     experiment_dir.mkdir(parents=True, exist_ok=True)
     os.chdir(experiment_dir)
 
+def resolve_paths(config):
+    for field_path in ['data.train_dataframe_path', 'data.train_dir', 'data.tst_dir']:
+        fields = field_path.split('.')
+        node = config
+        for field in fields[:-1]:
+            node = node[field]
+        node[fields[-1]] = str(Path(node[fields[-1]]).resolve())
+    return config
+
 if __name__ == "__main__":
     import argparse
     import json
@@ -164,7 +173,8 @@ if __name__ == "__main__":
 
     with open(args.cfg) as f:
         config = json.load(f)
-
+    resolve_paths(config)
+    
     set_seed(config['seed'])
 
     # wandb
