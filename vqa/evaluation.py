@@ -17,13 +17,14 @@ from fastai.metrics import F1Score, accuracy
 warnings.filterwarnings(action='ignore', category=UndefinedMetricWarning, module=r'.*')
 
 def evaluate_mtl(vocabs, probs, targets, preds, show=False):
+    clf_reports = []
     for vocab, target, pred in zip(vocabs, targets, preds):
         target = target.cpu().numpy()
         pred = pred.cpu().numpy()
         label_indices = list(range(len(vocab)))
         clf_report = classification_report(target, pred, labels=label_indices, target_names=vocab)
+        clf_reports.append(clf_report)
         if show:
-            print(clf_report)
             fig, ax = plt.subplots(figsize=(16, 12))
             ConfusionMatrixDisplay.from_predictions(target, pred, labels=label_indices, display_labels=vocab, ax=ax)
     scores = dict(
@@ -32,4 +33,4 @@ def evaluate_mtl(vocabs, probs, targets, preds, show=False):
         severity_f1_macro = F1Score(average='macro')(preds[1], targets[1]).item(),
         severity_accuracy = accuracy(probs[1], targets[1]).item(),
     )
-    return clf_report, scores
+    return '\n'.join(clf_reports), scores
