@@ -110,14 +110,3 @@ per-file-ignores =
 
 # Enable off-by-default extensions.
 enable-extensions =
-
-
-########## Docstring ##########
-
-# Enable PyFlakes syntax checking of doctests in docstrings.
-doctests = True
-
-# Specify which files are checked by PyFlakes for doctest syntax.
-include-in-doctest =
-# Specify which files are not to be checked by PyFlakes for doctest syntax.
-exclude-in-doctest =
