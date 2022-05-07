@@ -33,7 +33,7 @@ loss_map = dict(ce=CrossEntropyLossFlat, focal=FocalLossFlat)
 def make_loss(distortion_loss_name, severity_loss_name, loss_weights):
     return CombinedLoss(loss_map[distortion_loss_name](), loss_map[severity_loss_name](), weight=loss_weights)
     
-def run_experiment(
+def train_eval_infer(
     df,
     tst_df,
     *,
@@ -163,19 +163,10 @@ def resolve_paths(config):
         node[fields[-1]] = str(Path(node[fields[-1]]).resolve())
     return config
 
-if __name__ == "__main__":
-    import argparse
-    import json
-
-    parser = argparse.ArgumentParser()
-    parser.add_argument('--cfg')
-    args = parser.parse_args()
-
-    with open(args.cfg) as f:
-        config = json.load(f)
-    resolve_paths(config)
-    
-    set_seed(config['seed'])
+def run_experiment(config):
+    seed = config.get('seed')
+    if seed is not None:
+        set_seed(seed)
 
     # wandb
     wandb_run = wandb.init(
@@ -190,7 +181,7 @@ if __name__ == "__main__":
 
     # experiment
     setup_experiment()
-    dls, learn = run_experiment(
+    dls, learn = train_eval_infer(
         df,
         tst_df,
         **config['model']
@@ -209,3 +200,18 @@ if __name__ == "__main__":
     # wrap up
     wandb.finish()
 
+
+if __name__ == "__main__":
+    import argparse
+    import json
+
+    parser = argparse.ArgumentParser()
+    parser.add_argument('--cfg')
+    args = parser.parse_args()
+    
+    with open(args.cfg) as f:
+        config = json.load(f)
+    resolve_paths(config)
+    
+    run_experiment(config)
+    
