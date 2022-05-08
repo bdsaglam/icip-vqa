@@ -5,35 +5,45 @@ __all__ = ['parse_distortion_severity', 'parse_scene', 'label_dataframe', 'make_
            'assert_stratied_split', 'make_test_dataframe']
 
 # Cell
-
 from pathlib import Path
 import pandas as pd
+from fastcore.basics import *
+from fastcore.xtras import *
+
+from .utils import most_common
 
 # Cell
+from pathlib import Path
+import pandas as pd
+from fastcore.basics import *
 
+from .utils import most_common
+
+# Cell
 import re
 
-_pattern = re.compile('_(D\d)')
+_disto_pattern = re.compile('_(D\d)')
+_sev_pattern = re.compile('_(\d)')
 def parse_distortion_severity(video_name):
-    distortions = _pattern.findall(video_name)
+    distortions = disto_pattern.findall(video_name)
+    sevs = sev_pattern.findall(video_name)
     if len(distortions)==0: # reference video
-        return 'D0', 'S0'
-    sev_level = int(video_name[-1])
-    assert sev_level in {1,2,3,4,5}
-    return '_'.join(distortions), f"S{sev_level}"
-
-# Cell
+        return []
+    if len(sevs)==1:
+        sevs = sevs*len(distortions)
+    assert len(distortions)==len(sevs)
+    sevs = [int(sev) for sev in sevs]
+    return sorted(f"{disto}_{sev}" for disto, sev in zip(distortions, sevs))
 
 def parse_scene(video_name):
     return video_name.split("_D", 1)[0].lower()
 
 # Cell
-
 def label_dataframe(df):
     df['scene'] = df['video_name'].apply(parse_scene)
-    df['label'] = df['video_name'].apply(parse_distortion_severity)
-    df['distortion'] = df['label'].apply(lambda t: t[0])
-    df['severity'] = df['label'].apply(lambda t: t[1])
+    df['label'] = df['video_name'].apply(parse_distortion_severity).apply(lambda labels: 'R_0' if len(labels)==0 else ','.join(labels))
+    df['distortion'] = df['label'].apply(lambda s: '_'.join(ds.split('_')[0] for ds in s.split(',')))
+    df['severity'] = df['label'].apply(lambda s: most_common(ds.split('_')[1] for ds in s.split(',')))
     return df
 
 # Cell

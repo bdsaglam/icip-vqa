@@ -50,6 +50,7 @@ def train_eval_infer(
     freeze_epochs: int=10,
     epochs: int=40,
     lr: float = None,
+    wandb_enabled=True,
 ):
     batch_tfms = []
     if normalize:
@@ -81,17 +82,22 @@ def train_eval_infer(
     severity_accuracy = route_to_metric(1, accuracy)
     severity_accuracy.func.__name__ = 'severity_accuracy'
 
+    # callbacks
+    cbs=[
+        SaveModelCallback(),
+        EarlyStoppingCallback(patience=10),
+    ]
+    if wandb_enabled:
+        cbs.append(WandbCallback())
+    
+    # learner
     learn = Learner(
         dls, 
         model=model,
         loss_func= make_loss(distortion_loss_name, severity_loss_name, loss_weights),
         metrics=[distortion_f1_macro, distortion_accuracy, severity_f1_macro, severity_accuracy],
         splitter=model.splitter,
-        cbs=[
-            SaveModelCallback(),
-            WandbCallback(),
-            EarlyStoppingCallback(patience=10),
-        ]
+        cbs=cbs,
     )
     if DEVICE.type!='cpu': learn = learn.to_fp16()
 
@@ -110,31 +116,30 @@ def train_eval_infer(
     learn = learn.load('model')
     probs, targets, preds = learn.get_preds(dl=dls.valid, with_decoded=True)
     clf_report, scores = evaluate_mtl(dls.vocab, probs, targets, preds)
-    with open('classification_report.txt', 'w') as f:
-        f.write(clf_report)
-    artifact = wandb.Artifact('classification_report', type='perf')
-    artifact.add_file('classification_report.txt')
-    wandb_run.log_artifact(artifact)
-    wandb.config.update(scores)
+    if wandb_enabled:
+        with open('classification_report.txt', 'w') as f:
+            f.write(clf_report)
+        artifact = wandb.Artifact('classification_report', type='perf')
+        artifact.add_file('classification_report.txt')
+        wandb_run.log_artifact(artifact)
+        wandb.config.update(scores)
     
     # inference
     inference_df = get_test_inferences(dls, learn, tst_df)
     lines = make_submission(inference_df['distortion_inference'], inference_df['severity_inference'])
-    artifact = wandb.Artifact('test-predictions', type='perf')
-    artifact.add_file('predict.txt')
-    wandb_run.log_artifact(artifact)
-    
+    if wandb_enabled:
+        artifact = wandb.Artifact('test-predictions', type='perf')
+        artifact.add_file('predict.txt')
+        wandb_run.log_artifact(artifact)
+        
     return dls, learn
 
 
 def prepare_train_dataframe(df, directory, frame_indices_list, drop_reference):
     df['video_path'] = df['video_name'].apply(lambda vn: str(Path(directory) / vn))
-    if 'raw_label' in df.columns:
-        df['label'] = df['raw_label']
-    df['label'] = df['label'].apply(tuple)
     return (
         df
-        .pipe(lambda dataf: dataf[dataf.label != ('D0', 'S0')])
+        .pipe(lambda dataf: dataf[dataf.label != 'R_0'])
         .pipe(make_framer(frame_indices_list))
         .pipe(remove_corrupt_video_frames)
     )
@@ -169,15 +174,19 @@ def run_experiment(config):
         set_seed(seed)
 
     # wandb
-    wandb_run = wandb.init(
-        project=config['wandb']['wandb_project'], 
-        entity=config['wandb']['wandb_username']
-    )
-    wandb.config.update(flatten_dict(config))
+    wandb_enabled = config['wandb'].get('enabled', True)
+    if wandb_enabled:
+        wandb_run = wandb.init(
+            project=config['wandb']['wandb_project'], 
+            entity=config['wandb']['wandb_username']
+        )
+        wandb.config.update(flatten_dict(config))
 
     # data
     df, tst_df = make_dataframes(**config['data'])
     print(len(df), L(df.distortion.unique().tolist()), L(df.severity.unique().tolist()))
+    assert len(df.distortion.unique()) == 18
+    assert len(df.severity.unique()) == 4
 
     # experiment
     setup_experiment()
@@ -190,15 +199,17 @@ def run_experiment(config):
     # log dataset
     train_dataframe = df[['video_name', 'frames', 'scene', 'label', 'distortion', 'severity', 'is_valid']]
     train_dataframe.to_json('train_dataframe.json', orient='records')
-    artifact = wandb.Artifact('train_dataframe', type='dataset')
-    artifact.add_file('train_dataframe.json')
-    wandb_run.log_artifact(artifact)
-    wandb.log(dict(
-        df=wandb.Table(dataframe=train_dataframe),
-    ))
+    if wandb_enabled:
+        artifact = wandb.Artifact('train_dataframe', type='dataset')
+        artifact.add_file('train_dataframe.json')
+        wandb_run.log_artifact(artifact)
+        wandb.log(dict(
+            df=wandb.Table(dataframe=train_dataframe),
+        ))
 
     # wrap up
-    wandb.finish()
+    if wandb_enabled:
+        wandb.finish()
 
 
 if __name__ == "__main__":
