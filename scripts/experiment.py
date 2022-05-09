@@ -140,7 +140,7 @@ def prepare_train_dataframe(df, directory, frame_indices_list, drop_reference):
     df['video_path'] = df['video_name'].apply(lambda vn: str(Path(directory) / vn))
     return (
         df
-        .pipe(lambda dataf: dataf[dataf.label != 'R_0'])
+        .pipe(lambda dataf: dataf[dataf.label != 'R_0'] if drop_reference else dataf)
         .pipe(make_framer(frame_indices_list))
         .pipe(remove_corrupt_video_frames)
     )
