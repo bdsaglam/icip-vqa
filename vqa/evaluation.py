@@ -12,7 +12,6 @@ import matplotlib.pyplot as plt
 from fastai.basics import *
 
 # Cell
-
 warnings.filterwarnings(action='ignore', category=UndefinedMetricWarning, module=r'.*')
 
 def evaluate_mtl(vocabs, probs, targets, preds, show=False):

@@ -160,20 +160,14 @@ def setup_experiment():
     experiment_dir.mkdir(parents=True, exist_ok=True)
     os.chdir(experiment_dir)
 
-def resolve_paths(config):
-    for field_path in ['data.train_dataframe_path', 'data.train_dir', 'data.tst_dir']:
-        fields = field_path.split('.')
-        node = config
-        for field in fields[:-1]:
-            node = node[field]
-        node[fields[-1]] = str(Path(node[fields[-1]]).resolve())
-    return config
-
 def run_experiment(config):
     seed = config.get('seed')
     if seed is not None:
         set_seed(seed)
 
+    for field_path in ['data.train_dataframe_path', 'data.train_dir', 'data.tst_dir']:
+        resolve_path(config, field_path)
+    
     # wandb
     wandb_enabled = config['wandb'].get('wandb_enabled', False)
     if wandb_enabled:
@@ -224,7 +218,5 @@ if __name__ == "__main__":
     
     with open(args.cfg) as f:
         config = json.load(f)
-    resolve_paths(config)
-    
     run_experiment(config)
     
