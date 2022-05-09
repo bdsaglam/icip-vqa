@@ -8,6 +8,8 @@ index = {"Path.ls_sorted": "01_utils.ipynb",
          "get_node": "01_utils.ipynb",
          "apply_nested": "01_utils.ipynb",
          "resolve_path": "01_utils.ipynb",
+         "set_dir": "01_utils.ipynb",
+         "generate_time_id": "01_utils.ipynb",
          "parse_distortion_severity": "02_wrangling.ipynb",
          "parse_scene": "02_wrangling.ipynb",
          "label_dataframe": "02_wrangling.ipynb",
@@ -38,7 +40,10 @@ index = {"Path.ls_sorted": "01_utils.ipynb",
          "format_pred": "08_inference.ipynb",
          "get_test_inferences": "08_inference.ipynb",
          "make_submission": "08_inference.ipynb",
-         "most_freq": "08_inference.ipynb"}
+         "most_freq": "08_inference.ipynb",
+         "log_training_dataset": "09_experiment.ipynb",
+         "log_model_evaluation": "09_experiment.ipynb",
+         "log_predictions": "09_experiment.ipynb"}
 
 modules = ["utils.py",
            "wrangling.py",
@@ -47,7 +52,8 @@ modules = ["utils.py",
            "metric.py",
            "model.py",
            "evaluation.py",
-           "inference.py"]
+           "inference.py",
+           "experiment.py"]
 
 doc_url = "https://bdsaglam.github.io/vqa/"
 
