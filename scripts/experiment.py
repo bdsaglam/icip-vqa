@@ -99,7 +99,8 @@ def train_eval_infer(
         splitter=model.splitter,
         cbs=cbs,
     )
-    if DEVICE.type!='cpu': learn = learn.to_fp16()
+    if DEVICE.type!='cpu': 
+        learn = learn.to_fp16()
 
     if lr is None:
         lr_res = learn.lr_find(start_lr=1e-6, end_lr=1e-1, num_it=200)
@@ -174,7 +175,7 @@ def run_experiment(config):
         set_seed(seed)
 
     # wandb
-    wandb_enabled = config['wandb'].get('enabled', True)
+    wandb_enabled = config['wandb'].get('wandb_enabled', True)
     if wandb_enabled:
         wandb_run = wandb.init(
             project=config['wandb']['wandb_project'], 

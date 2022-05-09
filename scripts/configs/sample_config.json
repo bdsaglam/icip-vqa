@@ -1,6 +1,6 @@
 {
     "wandb": {
-        "enabled": false,
+        "wandb_enabled": false,
         "wandb_username": "bdsaglam",
         "wandb_project": "icip-2022"
     },
