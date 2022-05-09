@@ -194,7 +194,8 @@ def run_experiment(config):
     dls, learn = train_eval_infer(
         df,
         tst_df,
-        **config['model']
+        **config['model'],
+        wandb_enabled=wandb_enabled,
     )
 
     # log dataset
