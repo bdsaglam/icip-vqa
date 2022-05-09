@@ -50,7 +50,7 @@ def train_eval_infer(
     freeze_epochs: int=10,
     epochs: int=40,
     lr: float = None,
-    wandb_enabled=True,
+    wandb_enabled=False,
 ):
     batch_tfms = []
     if normalize:
@@ -175,7 +175,7 @@ def run_experiment(config):
         set_seed(seed)
 
     # wandb
-    wandb_enabled = config['wandb'].get('wandb_enabled', True)
+    wandb_enabled = config['wandb'].get('wandb_enabled', False)
     if wandb_enabled:
         wandb_run = wandb.init(
             project=config['wandb']['wandb_project'], 
