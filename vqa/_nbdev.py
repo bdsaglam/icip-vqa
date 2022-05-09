@@ -39,11 +39,11 @@ index = {"Path.ls_sorted": "01_utils.ipynb",
          "aggregate_preds": "08_inference.ipynb",
          "format_pred": "08_inference.ipynb",
          "get_test_inferences": "08_inference.ipynb",
-         "make_submission": "08_inference.ipynb",
+         "make_submission_preds": "08_inference.ipynb",
          "most_freq": "08_inference.ipynb",
          "log_training_dataset": "09_experiment.ipynb",
          "log_model_evaluation": "09_experiment.ipynb",
-         "log_predictions": "09_experiment.ipynb"}
+         "log_preds_for_competition": "09_experiment.ipynb"}
 
 modules = ["utils.py",
            "wrangling.py",

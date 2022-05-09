@@ -117,22 +117,13 @@ def train_eval_infer(
     learn = learn.load('model')
     probs, targets, preds = learn.get_preds(dl=dls.valid, with_decoded=True)
     clf_report, scores = evaluate_mtl(dls.vocab, probs, targets, preds)
-    if wandb_enabled:
-        with open('classification_report.txt', 'w') as f:
-            f.write(clf_report)
-        artifact = wandb.Artifact('classification_report', type='perf')
-        artifact.add_file('classification_report.txt')
-        wandb_run.log_artifact(artifact)
-        wandb.config.update(scores)
+    log_model_evaluation(clf_report, scores, wandb_enabled)
     
     # inference
     inference_df = get_test_inferences(dls, learn, tst_df)
-    lines = make_submission(inference_df['distortion_inference'], inference_df['severity_inference'])
-    if wandb_enabled:
-        artifact = wandb.Artifact('test-predictions', type='perf')
-        artifact.add_file('predict.txt')
-        wandb_run.log_artifact(artifact)
-        
+    lines = make_submission_preds(inference_df['distortion_inference'], inference_df['severity_inference'])
+    log_preds_for_competition(lines, wandb_enabled)
+    
     return dls, learn
 
 
@@ -193,15 +184,7 @@ def run_experiment(config):
     )
 
     # log dataset
-    train_dataframe = df[['video_name', 'frames', 'scene', 'label', 'distortion', 'severity', 'is_valid']]
-    train_dataframe.to_json('train_dataframe.json', orient='records')
-    if wandb_enabled:
-        artifact = wandb.Artifact('train_dataframe', type='dataset')
-        artifact.add_file('train_dataframe.json')
-        wandb_run.log_artifact(artifact)
-        wandb.log(dict(
-            df=wandb.Table(dataframe=train_dataframe),
-        ))
+    log_training_dataset(df, wandb_enabled)
 
     # wrap up
     if wandb_enabled:
