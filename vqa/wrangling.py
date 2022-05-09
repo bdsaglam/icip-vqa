@@ -13,20 +13,13 @@ from fastcore.xtras import *
 from .utils import most_common
 
 # Cell
-from pathlib import Path
-import pandas as pd
-from fastcore.basics import *
-
-from .utils import most_common
-
-# Cell
 import re
 
 _disto_pattern = re.compile('_(D\d)')
 _sev_pattern = re.compile('_(\d)')
 def parse_distortion_severity(video_name):
-    distortions = disto_pattern.findall(video_name)
-    sevs = sev_pattern.findall(video_name)
+    distortions = _disto_pattern.findall(video_name)
+    sevs = _sev_pattern.findall(video_name)
     if len(distortions)==0: # reference video
         return []
     if len(sevs)==1:
@@ -47,7 +40,6 @@ def label_dataframe(df):
     return df
 
 # Cell
-
 from sklearn.model_selection import train_test_split
 
 def make_dataframe_splitter(valid_pct, strata='label'):
@@ -59,7 +51,6 @@ def make_dataframe_splitter(valid_pct, strata='label'):
     return stratified_split
 
 # Cell
-
 def populate_frames(df, frame_indices_list):
     for frame_indices in frame_indices_list:
         df = df.copy()
@@ -71,7 +62,6 @@ def make_framer(frame_indices_list):
     return lambda dataf: pd.concat(list(populate_frames(dataf, frame_indices_list)), axis=0)
 
 # Cell
-
 def remove_corrupt_video_frames(df):
     video_names = [
      'Concorde_place_D1_D5_1',
@@ -87,7 +77,6 @@ def remove_corrupt_video_frames(df):
     return df[~tbd_idx].copy()
 
 # Cell
-
 def make_dataframe(root):
     video_paths = sorted([str(p) for p in root.ls() if not p.name.startswith('.')])
     df = pd.DataFrame(data=dict(video_path=video_paths))
@@ -95,7 +84,6 @@ def make_dataframe(root):
     return df
 
 # Cell
-
 def make_train_dataframe(root, valid_pct, frame_indices_list):
     return (
         make_dataframe(root)
@@ -106,7 +94,6 @@ def make_train_dataframe(root, valid_pct, frame_indices_list):
     )
 
 # Cell
-
 def assert_stratied_split(df, label_col):
     train_df, val_df = df[~df['is_valid']], df[df['is_valid']]
     ratio = len(val_df) / len(train_df)
@@ -117,7 +104,6 @@ def assert_stratied_split(df, label_col):
     assert ratio - 0.02 < label_freqs['ratio'].mean() < ratio + 0.02, label_freqs['ratio'].min()
 
 # Cell
-
 def make_test_dataframe(root, frame_indices_list):
     return (
         make_dataframe(root)
