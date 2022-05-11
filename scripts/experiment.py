@@ -114,7 +114,11 @@ def train_eval_infer(
             learn.fit_one_cycle(epochs, lr)
 
     # evaluation
-    learn = learn.load('model')
+    try:
+        learn = learn.load('model')
+    except FileNotFoundError:
+        print('No saved model found.')
+    
     probs, targets, preds = learn.get_preds(dl=dls.valid, with_decoded=True)
     clf_report, scores = evaluate_mtl(dls.vocab, probs, targets, preds)
     log_model_evaluation(clf_report, scores, wandb_enabled)
