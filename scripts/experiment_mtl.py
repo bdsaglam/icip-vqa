@@ -107,12 +107,12 @@ def train_eval_infer(
         lr_res = learn.lr_find(start_lr=1e-6, end_lr=1e-1, num_it=200)
         lr = lr_res.valley
     
-    # with warnings.catch_warnings():
-    #     warnings.filterwarnings(action='ignore', category=UndefinedMetricWarning, module=r'.*')
-    #     if fine_tune:
-    #         learn.fine_tune(epochs, lr, freeze_epochs=freeze_epochs)
-    #     else:
-    #         learn.fit_one_cycle(epochs, lr)
+    with warnings.catch_warnings():
+        warnings.filterwarnings(action='ignore', category=UndefinedMetricWarning, module=r'.*')
+        if fine_tune:
+            learn.fine_tune(epochs, lr, freeze_epochs=freeze_epochs)
+        else:
+            learn.fit_one_cycle(epochs, lr)
 
     # evaluation
     try:
@@ -120,9 +120,9 @@ def train_eval_infer(
     except FileNotFoundError:
         print('No saved model found.')
     
-    # probs, targets, preds = learn.get_preds(dl=dls.valid, with_decoded=True)
-    # clf_report, scores = evaluate_mtl(dls.vocab, probs, targets, preds)
-    # log_model_evaluation(clf_report, scores, wandb_enabled)
+    probs, targets, preds = learn.get_preds(dl=dls.valid, with_decoded=True)
+    clf_report, scores = evaluate_mtl(dls.vocab, probs, targets, preds)
+    log_model_evaluation(clf_report, scores, wandb_enabled)
     
     # inference
     inference_df = get_test_inferences(dls, learn, tst_df.sample(bs))
