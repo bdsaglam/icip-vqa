@@ -20,7 +20,7 @@ def evaluate_mtl(vocabs, probs, targets, preds, show=False):
         target = target.cpu().numpy()
         pred = pred.cpu().numpy()
         label_indices = list(range(len(vocab)))
-        clf_report = classification_report(target, pred, labels=label_indices, target_names=vocab)
+        clf_report = classification_report(target, pred, labels=label_indices, target_names=[*vocab])
         clf_reports.append(clf_report)
         if show:
             fig, ax = plt.subplots(figsize=(16, 12))
