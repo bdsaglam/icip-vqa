@@ -51,7 +51,7 @@ def train_eval_infer(
     freeze_epochs: int=10,
     epochs: int=40,
     lr: float = None,
-    wandb_enabled=False,
+    wandb_run=None,
 ):
     batch_tfms = []
     if normalize:
@@ -88,7 +88,7 @@ def train_eval_infer(
         SaveModelCallback(),
         EarlyStoppingCallback(patience=10),
     ]
-    if wandb_enabled:
+    if wandb_run:
         cbs.append(WandbCallback())
     
     # learner
@@ -122,12 +122,12 @@ def train_eval_infer(
     
     probs, targets, preds = learn.get_preds(dl=dls.valid, with_decoded=True)
     clf_report, scores = evaluate_mtl(dls.vocab, probs, targets, preds)
-    log_model_evaluation(clf_report, scores, wandb_enabled)
+    log_model_evaluation(clf_report, scores, wandb_run)
     
     # inference
     inference_df = get_test_inferences(dls, learn, tst_df.sample(bs))
     lines = make_submission_preds(inference_df['distortion_inference'], inference_df['severity_inference'])
-    log_preds_for_competition(lines, wandb_enabled)
+    log_preds_for_competition(lines, wandb_run)
     
     return dls, learn
 
@@ -189,10 +189,10 @@ def run_experiment(config):
     )
 
     # log dataset
-    log_training_dataset(df, wandb_enabled)
+    log_training_dataset(df, wandb_run)
 
     # wrap up
-    if wandb_enabled:
+    if wandb_run:
         wandb.finish()
 
 
