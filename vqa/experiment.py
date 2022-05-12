@@ -12,7 +12,7 @@ def log_training_dataset(df, wandb_run=None):
     train_dataframe = df[['video_name', 'frames', 'scene', 'label', 'distortion', 'severity', 'is_valid']]
     path = 'train_dataframe.json'
     train_dataframe.to_json(path, orient='records')
-    if  wandb_run:
+    if wandb_run:
         import wandb
         artifact = wandb.Artifact('train_dataframe', type='dataset')
         artifact.add_file(path)
