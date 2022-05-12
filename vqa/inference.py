@@ -40,7 +40,7 @@ def format_pred(pred):
     if len(distortions)==0:
         return ''
     severity = pred[1]
-    return ','.join(sorted([f"{distortion[1]}_{severity[1]}" for distortion in distortions]))
+    return ','.join(sorted([f"{distortion[1]}_{severity}" for distortion in distortions]))
 
 def get_test_inferences(dls, learn, tst_df):
     tst_dl = dls.test_dl(tst_df)
