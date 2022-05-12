@@ -165,8 +165,8 @@ def run_experiment(config):
         resolve_path(config, field_path)
     
     # wandb
-    wandb_enabled = config['wandb'].get('wandb_enabled', False)
-    if wandb_enabled:
+    wandb_run = None
+    if config['wandb'].get('wandb_enabled', False):
         wandb_run = wandb.init(
             project=config['wandb']['wandb_project'], 
             entity=config['wandb']['wandb_username']
