@@ -27,7 +27,7 @@ import json
 
 def log_model_evaluation(clf_report, scores, wandb_enabled=False):
     clf_report_path = 'classification_report.txt'
-    with open(path, 'w') as f:
+    with open(clf_report_path, 'w') as f:
         f.write(clf_report)
 
     scores_path = 'scores.json'
