@@ -185,7 +185,7 @@ def run_experiment(config):
         df,
         tst_df,
         **config['model'],
-        wandb_enabled=wandb_enabled,
+        wandb_run=wandb_run,
     )
 
     # log dataset
