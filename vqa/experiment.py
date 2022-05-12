@@ -8,11 +8,11 @@ import numpy as np
 from fastai.basics import *
 
 # Cell
-def log_training_dataset(df, wandb_enabled=False):
+def log_training_dataset(df, wandb_run=None):
     train_dataframe = df[['video_name', 'frames', 'scene', 'label', 'distortion', 'severity', 'is_valid']]
     path = 'train_dataframe.json'
     train_dataframe.to_json(path, orient='records')
-    if wandb_enabled:
+    if  wandb_run:
         import wandb
         artifact = wandb.Artifact('train_dataframe', type='dataset')
         artifact.add_file(path)
@@ -25,7 +25,7 @@ def log_training_dataset(df, wandb_enabled=False):
 # Cell
 import json
 
-def log_model_evaluation(clf_report, scores, wandb_enabled=False):
+def log_model_evaluation(clf_report, scores, wandb_run=None):
     clf_report_path = 'classification_report.txt'
     with open(clf_report_path, 'w') as f:
         f.write(clf_report)
@@ -34,7 +34,7 @@ def log_model_evaluation(clf_report, scores, wandb_enabled=False):
     with open(scores_path, 'w') as f:
         json.dump(scores, f)
 
-    if wandb_enabled:
+    if wandb_run:
         import wandb
 
         artifact = wandb.Artifact('classification_report', type='perf')
@@ -50,11 +50,11 @@ def log_model_evaluation(clf_report, scores, wandb_enabled=False):
     return clf_report_path, scores_path
 
 # Cell
-def log_preds_for_competition(preds, wandb_enabled=False):
+def log_preds_for_competition(preds, wandb_run=None):
     path = 'predict.txt'
     with open(path, 'w') as f:
         f.write('\n'.join(preds))
-    if wandb_enabled:
+    if wandb_run:
         import wandb
         artifact = wandb.Artifact('test-predictions', type='perf')
         artifact.add_file(path)
