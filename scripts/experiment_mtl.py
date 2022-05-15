@@ -126,7 +126,7 @@ def train_eval_infer(
     
     # inference
     inference_df = get_test_inferences(dls, learn, tst_df)
-    lines = make_submission_preds(inference_df['distortion_inference'], inference_df['severity_inference'])
+    lines = make_submission_preds(inference_df['distortion_pred'], inference_df['severity_pred'])
     log_preds_for_competition(lines, wandb_run)
     
     return dls, learn

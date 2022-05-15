@@ -31,8 +31,8 @@ def aggregate_preds(dataf):
         'severity': first,
         'severity_preds': list,
     })
-    idf['distortion_inference'] = idf['distortion_preds'].apply(most_freq)
-    idf['severity_inference'] = idf['severity_preds'].apply(most_freq)
+    idf['distortion_pred'] = idf['distortion_preds'].apply(most_freq)
+    idf['severity_pred'] = idf['severity_preds'].apply(most_freq)
     return idf
 
 def format_pred(pred):
