@@ -131,16 +131,6 @@ def train_eval_infer(
     
     return dls, learn
 
-
-def prepare_train_dataframe(df, directory, frame_indices_list, drop_reference):
-    df['video_path'] = df['video_name'].apply(lambda vn: str(Path(directory) / vn))
-    return (
-        df
-        .pipe(lambda dataf: dataf[dataf.label != 'R_0'] if drop_reference else dataf)
-        .pipe(make_framer(frame_indices_list))
-        .pipe(remove_corrupt_video_frames)
-    )
-
 def make_dataframes(train_dataframe_path, train_dir, tst_dir, frame_indices_list, drop_reference):
     df = prepare_train_dataframe(pd.read_json(train_dataframe_path), train_dir, frame_indices_list, drop_reference)
     tst_df = make_test_dataframe(Path(tst_dir), frame_indices_list=frame_indices_list)

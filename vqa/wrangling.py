@@ -2,7 +2,7 @@
 
 __all__ = ['parse_distortion_severity', 'parse_scene', 'label_dataframe', 'make_dataframe_splitter', 'populate_frames',
            'make_framer', 'remove_corrupt_video_frames', 'make_dataframe', 'make_train_dataframe',
-           'assert_stratied_split', 'make_test_dataframe']
+           'assert_stratied_split', 'make_test_dataframe', 'prepare_train_dataframe']
 
 # Cell
 from pathlib import Path
@@ -34,7 +34,7 @@ def parse_scene(video_name):
 # Cell
 def label_dataframe(df):
     df['scene'] = df['video_name'].apply(parse_scene)
-    df['label'] = df['video_name'].apply(parse_distortion_severity).apply(lambda labels: 'R_0' if len(labels)==0 else ','.join(labels))
+    df['label'] = df['video_name'].apply(parse_distortion_severity).apply(lambda labels: 'R0_0' if len(labels)==0 else ','.join(labels))
     df['distortion'] = df['label'].apply(lambda s: '_'.join(ds.split('_')[0] for ds in s.split(',')))
     df['severity'] = df['label'].apply(lambda s: most_common(ds.split('_')[1] for ds in s.split(',')))
     return df
@@ -108,5 +108,14 @@ def make_test_dataframe(root, frame_indices_list):
     return (
         make_dataframe(root)
         .pipe(label_dataframe)
+        .pipe(make_framer(frame_indices_list))
+    )
+
+# Cell
+def prepare_train_dataframe(df, video_dir, frame_indices_list, drop_reference=True):
+    df['video_path'] = df['video_name'].apply(lambda vn: str(Path(video_dir) / vn))
+    return (
+        df
+        .pipe(lambda dataf: dataf[dataf.label != 'R0_0'] if drop_reference else dataf)
         .pipe(make_framer(frame_indices_list))
     )
