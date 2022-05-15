@@ -3,12 +3,14 @@
 __all__ = ['BaselineSTM', 'BaselineMTM', 'MultiScaleBackbone', 'MultiScaleMTM', 'SequenceSTM', 'SequenceMTM']
 
 # Cell
+
 import torch
 import torch.nn as nn
 from fastai.basics import *
 from fastai.vision.all import *
 
 # Cell
+
 class BaselineSTM(Module):
     def __init__(self, arch, n_out, pretrained=True):
         store_attr()
@@ -30,7 +32,7 @@ class BaselineMTM(Module):
     def __init__(self, arch, n_distortion, n_sev, pretrained=True):
         store_attr()
         self.encoder = TimeDistributed(create_body(arch, pretrained=pretrained))
-        n_features = dummy_eval(self.encoder.module, (300, 300)).shape[1]
+        n_features = dummy_eval(self.encoder.module, (224, 224)).shape[1]
         self.head = TimeDistributed(create_head(n_features, n_distortion + n_sev))
 
     def forward(self, x):
@@ -59,7 +61,7 @@ class MultiScaleMTM(Module):
     def __init__(self, arch, n_distortion, n_sev, pretrained=True):
         store_attr()
         self.encoder = TimeDistributed(MultiScaleBackbone(arch, pretrained=pretrained))
-        n_features = dummy_eval(self.encoder.module, (300, 300)).shape[1]
+        n_features = dummy_eval(self.encoder.module, (224, 224)).shape[1]
         self.head = TimeDistributed(create_head(n_features, n_distortion + n_sev))
 
     def forward(self, x):
@@ -106,7 +108,7 @@ class SequenceMTM(Module):
             nn.AdaptiveAvgPool2d(1),
             Flatten()
         ))
-        n_features = dummy_eval(self.encoder.module, (300, 300)).shape[1]
+        n_features = dummy_eval(self.encoder.module, (224, 224)).shape[1]
         self.rnn = nn.LSTM(n_features, n_features, num_layers=num_rnn_layers, batch_first=True)
         self.head = LinBnDrop(num_rnn_layers * n_features, n_distortion + n_sev)
 
