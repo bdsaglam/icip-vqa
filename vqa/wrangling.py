@@ -78,7 +78,7 @@ def remove_corrupt_video_frames(df):
 
 # Cell
 def make_dataframe(root):
-    video_paths = sorted([str(p) for p in root.ls() if not p.name.startswith('.')])
+    video_paths = sorted([str(p) for p in Path(root).ls() if not p.name.startswith('.')])
     df = pd.DataFrame(data=dict(video_path=video_paths))
     df['video_name'] = df['video_path'].apply(lambda p: Path(p).name)
     return df
