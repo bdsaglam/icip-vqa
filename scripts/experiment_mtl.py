@@ -48,12 +48,13 @@ def train_eval_infer(
     pretrained: bool = True, 
     distortion_loss_name: str = 'ce', 
     severity_loss_name: str = 'ce', 
-    loss_weights: list=(1.0, 1.0),
-    fine_tune: bool=True,
-    freeze_epochs: int=10,
-    epochs: int=40,
+    loss_weights: list = (1.0, 1.0),
+    fine_tune: bool = True,
+    freeze_epochs: int = 10,
+    epochs: int = 40,
+    early_stop_patience = 10,
     lr: float = None,
-    wandb_run=None,
+    wandb_run = None,
 ):
     batch_tfms = []
     if normalize:
@@ -86,10 +87,7 @@ def train_eval_infer(
     severity_accuracy.func.__name__ = 'severity_accuracy'
 
     # callbacks
-    cbs = [
-        SaveModelCallback(),
-        EarlyStoppingCallback(patience=10),
-    ]
+    cbs = [SaveModelCallback(), EarlyStoppingCallback(patience=early_stop_patience)]
     if wandb_run:
         cbs.append(WandbCallback())
     

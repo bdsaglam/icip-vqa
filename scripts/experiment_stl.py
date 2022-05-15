@@ -46,11 +46,12 @@ def train_eval_infer(
     model_name: str = 'baseline_stm', 
     pretrained: bool = True, 
     loss_name: str = 'ce', 
-    fine_tune: bool=True,
-    freeze_epochs: int=10,
-    epochs: int=40,
+    fine_tune: bool = True,
+    freeze_epochs: int = 10,
+    epochs: int = 40,
+    early_stop_patience = 10,
     lr: float = None,
-    wandb_run=None,
+    wandb_run = None,
 ):
     batch_tfms = []
     if normalize:
@@ -72,10 +73,7 @@ def train_eval_infer(
     model = make_model(dls, arch_name=arch_name, model_name=model_name, pretrained=pretrained)
 
     # callbacks
-    cbs=[
-        SaveModelCallback(),
-        EarlyStoppingCallback(patience=10),
-    ]
+    cbs = [SaveModelCallback(), EarlyStoppingCallback(patience=early_stop_patience)]
     if wandb_run:
         cbs.append(WandbCallback())
     
