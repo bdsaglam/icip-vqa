@@ -30,10 +30,12 @@ def make_model(dls, arch_name, model_name, pretrained):
     model = model_map[model_name](arch=arch, n_distortion=len(dls.vocab[0]), n_sev=len(dls.vocab[1]), pretrained=pretrained).to(DEVICE)
     return model
 
+
 loss_map = dict(ce=CrossEntropyLossFlat, focal=FocalLossFlat)
 def make_loss(distortion_loss_name, severity_loss_name, loss_weights):
     return CombinedLoss(loss_map[distortion_loss_name](), loss_map[severity_loss_name](), weight=loss_weights)
-    
+
+
 def train_eval_infer(
     df,
     tst_df,
@@ -84,7 +86,7 @@ def train_eval_infer(
     severity_accuracy.func.__name__ = 'severity_accuracy'
 
     # callbacks
-    cbs=[
+    cbs = [
         SaveModelCallback(),
         EarlyStoppingCallback(patience=10),
     ]
@@ -131,11 +133,13 @@ def train_eval_infer(
     
     return dls, learn
 
+
 def make_dataframes(train_dataframe_path, train_dir, tst_dir, frame_indices_list, drop_reference):
     df = prepare_train_dataframe(pd.read_json(train_dataframe_path), train_dir, frame_indices_list, drop_reference)
     tst_df = make_test_dataframe(Path(tst_dir), frame_indices_list=frame_indices_list)
     assert_stratied_split(df, 'label')
     return df, tst_df
+
 
 def run_experiment(config):
     seed = config.get('seed')
@@ -165,6 +169,7 @@ def run_experiment(config):
     if wandb_run:
         wandb.finish()
     return df, tst_df, dls, learn    
+
 
 if __name__ == "__main__":
     import argparse

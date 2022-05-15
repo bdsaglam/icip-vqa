@@ -31,8 +31,10 @@ def make_model(dls, arch_name, model_name, pretrained):
     model = model_map[model_name](arch=arch, n_out=len(dls.vocab), pretrained=pretrained).to(DEVICE)
     return model
 
+
 loss_map = dict(ce=CrossEntropyLossFlat, focal=FocalLossFlat)
- 
+
+
 def train_eval_infer(
     df,
     tst_df,
