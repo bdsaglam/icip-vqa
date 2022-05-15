@@ -137,54 +137,34 @@ def make_dataframes(train_dataframe_path, train_dir, tst_dir, frame_indices_list
     assert_stratied_split(df, 'label')
     return df, tst_df
 
-def setup_experiment():
-    import os
-    from pathlib import Path
-    from datetime import datetime
-    experiment_id = datetime.now().isoformat().rsplit('.', 1)[0].replace(':', '-')
-    experiment_dir = Path('./experiments') / experiment_id
-    experiment_dir.mkdir(parents=True, exist_ok=True)
-    os.chdir(experiment_dir)
-
 def run_experiment(config):
     seed = config.get('seed')
     if seed is not None:
         set_seed(seed)
-
-    for field_path in ['data.train_dataframe_path', 'data.train_dir', 'data.tst_dir']:
-        resolve_path(config, field_path)
-    
     # wandb
     wandb_run = None
-    if config['wandb'].get('wandb_enabled', False):
+    if config.get('wandb', dict()).get('wandb_enabled', False):
         wandb_run = wandb.init(
             project=config['wandb']['wandb_project'], 
             entity=config['wandb']['wandb_username']
         )
         wandb.config.update(flatten_dict(config))
-
     # data
     df, tst_df = make_dataframes(**config['data'])
     print(len(df), L(df.distortion.unique().tolist()), L(df.severity.unique().tolist()))
-    assert len(df.distortion.unique()) == 18
-    assert len(df.severity.unique()) == 4
-
     # experiment
-    setup_experiment()
     dls, learn = train_eval_infer(
         df,
         tst_df,
         **config['model'],
         wandb_run=wandb_run,
     )
-
     # log dataset
     log_training_dataset(df, wandb_run)
-
     # wrap up
     if wandb_run:
         wandb.finish()
-
+    return df, tst_df, dls, learn    
 
 if __name__ == "__main__":
     import argparse
@@ -196,5 +176,10 @@ if __name__ == "__main__":
     
     with open(args.cfg) as f:
         config = json.load(f)
-    run_experiment(config)
+    
+    for field_path in ['data.train_dataframe_path', 'data.train_dir', 'data.tst_dir']:
+        resolve_path(config, field_path)
+    
+    with set_dir(make_experiment_dir()):
+        run_experiment(config)
     
