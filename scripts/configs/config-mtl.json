@@ -1,12 +1,13 @@
 {
     "wandb": {
+        "wandb_enabled": true,
         "wandb_username": "bdsaglam",
         "wandb_project": "icip-2022"
     },
     "data": {
-        "train_dataframe_path": "/Users/bdsaglam/knowledge/data-informatics/MMI-711/project/data/frames/480x270-intercubic/icip-2022-v3.json",
-        "train_dir": "/Users/bdsaglam/knowledge/data-informatics/MMI-711/project/data/frames/480x270-intercubic/train_frames_480x270",
-        "tst_dir": "/Users/bdsaglam/knowledge/data-informatics/MMI-711/project/data/frames/480x270-intercubic/test_frames_480x270",
+        "train_dataframe_path": "/Users/bdsaglam/knowledge/data-informatics/MMI-711/project/data/frames/398x224/train_val_dataframe.json",
+        "train_dir": "/Users/bdsaglam/knowledge/data-informatics/MMI-711/project/data/frames/398x224/train_frames",
+        "tst_dir": "/Users/bdsaglam/knowledge/data-informatics/MMI-711/project/data/frames/398x224/test_frames",
         "frame_indices_list": [
             [
                 0,
@@ -42,51 +43,16 @@
                 22,
                 23,
                 24
-            ],
-            [
-                25,
-                26,
-                27,
-                28,
-                29
-            ],
-            [
-                30,
-                31,
-                32,
-                33,
-                34
-            ],
-            [
-                35,
-                36,
-                37,
-                38,
-                39
-            ],
-            [
-                40,
-                41,
-                42,
-                43,
-                44
-            ],
-            [
-                45,
-                46,
-                47,
-                48,
-                49
             ]
         ],
         "drop_reference": true
     },
     "model": {
-        "normalize": false,
+        "normalize": true,
         "augment": true,
         "bs": 16,
-        "arch_name": "resnet50",
-        "model_name": "multiscale_mtm",
+        "arch_name": "resnet18",
+        "model_name": "baseline_mtm",
         "pretrained": true,
         "distortion_loss_name": "ce",
         "severity_loss_name": "ce",
@@ -96,7 +62,8 @@
         ],
         "fine_tune": false,
         "freeze_epochs": 1,
-        "epochs": 60,
+        "epochs": 50,
+        "early_stop_patience": 10,
         "lr": 0.0001
     },
     "seed": 42,
