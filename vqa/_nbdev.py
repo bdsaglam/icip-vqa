@@ -38,8 +38,8 @@ index = {"Path.ls_sorted": "01_utils.ipynb",
          "fill_preds": "08_inference.ipynb",
          "aggregate_preds": "08_inference.ipynb",
          "format_pred": "08_inference.ipynb",
-         "get_test_inferences": "08_inference.ipynb",
-         "make_submission_preds": "08_inference.ipynb",
+         "get_test_inferences": "10_inference_stl.ipynb",
+         "make_submission_preds": "10_inference_stl.ipynb",
          "most_freq": "08_inference.ipynb",
          "log_training_dataset": "09_experiment.ipynb",
          "log_model_evaluation": "09_experiment.ipynb",
@@ -53,7 +53,8 @@ modules = ["utils.py",
            "model.py",
            "evaluation.py",
            "inference.py",
-           "experiment.py"]
+           "experiment.py",
+           "inference_stl.py"]
 
 doc_url = "https://bdsaglam.github.io/vqa/"
 

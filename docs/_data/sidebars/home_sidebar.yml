@@ -36,6 +36,9 @@ entries:
     - output: web,pdf
       title: Experiment utils
       url: experiment.html
+    - output: web,pdf
+      title: Inference for single-task learning
+      url: inference_stl.html
     output: web
     title: vqa
   output: web
