@@ -11,7 +11,7 @@ import pandas as pd
 from fastai.basics import *
 
 from .utils import generate_time_id
-from .wrangling import prepare_train_dataframe
+from .wrangling import prepare_train_dataframe, make_test_dataframe
 
 # Cell
 def log_training_dataset(df, wandb_run=None):
