@@ -45,7 +45,8 @@ index = {"Path.ls_sorted": "01_utils.ipynb",
          "log_training_dataset": "09_experiment.ipynb",
          "log_model_evaluation": "09_experiment.ipynb",
          "log_preds_for_competition": "09_experiment.ipynb",
-         "make_experiment_dir": "09_experiment.ipynb"}
+         "make_experiment_dir": "09_experiment.ipynb",
+         "make_dataframes": "09_experiment.ipynb"}
 
 modules = ["utils.py",
            "wrangling.py",

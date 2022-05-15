@@ -116,13 +116,6 @@ def train_eval_infer(
     return dls, learn
 
 
-def make_dataframes(train_dataframe_path, train_dir, tst_dir, frame_indices_list, drop_reference):
-    df = prepare_train_dataframe(pd.read_json(train_dataframe_path), train_dir, frame_indices_list, drop_reference)
-    tst_df = make_test_dataframe(Path(tst_dir), frame_indices_list=frame_indices_list)
-    assert_stratied_split(df, 'label')
-    return df, tst_df
-
-
 def run_experiment(config):
     seed = config.get('seed')
     if seed is not None:
@@ -137,6 +130,7 @@ def run_experiment(config):
         wandb.config.update(flatten_dict(config))
     # data
     df, tst_df = make_dataframes(**config['data'])
+    assert_stratied_split(df, 'label')
     print(len(df), L(df.label.unique().tolist()))
     # experiment
     dls, learn = train_eval_infer(
