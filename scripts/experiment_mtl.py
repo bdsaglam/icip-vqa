@@ -52,7 +52,7 @@ def train_eval_infer(
     fine_tune: bool = True,
     freeze_epochs: int = 10,
     epochs: int = 40,
-    early_stop_patience = 10,
+    early_stop_patience = None,
     lr: float = None,
     wandb_run = None,
 ):
@@ -87,7 +87,9 @@ def train_eval_infer(
     severity_accuracy.func.__name__ = 'severity_accuracy'
 
     # callbacks
-    cbs = [SaveModelCallback(), EarlyStoppingCallback(patience=early_stop_patience)]
+    cbs = [SaveModelCallback()]
+    if early_stop_patience:
+        cbs.append(EarlyStoppingCallback(patience=early_stop_patience))
     if wandb_run:
         cbs.append(WandbCallback())
     
