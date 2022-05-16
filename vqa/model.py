@@ -144,4 +144,4 @@ class MultiHeadMTM(Module):
 
     @staticmethod
     def splitter(model):
-        return [params(model.encoder), params(model.head)]
+        return [params(model.encoder), params(model.common_head) + params(model.dis_head) + params(model.sev_head)]
