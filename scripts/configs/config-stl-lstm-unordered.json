@@ -1,0 +1,66 @@
+{
+    "wandb": {
+        "wandb_enabled": true,
+        "wandb_username": "bdsaglam",
+        "wandb_project": "icip-2022"
+    },
+    "data": {
+        "train_dataframe_path": "/kaggle/input/vsqad2022398x224/train_val_dataframe.json",
+        "train_dir": "/kaggle/input/vsqad2022398x224/train_frames",
+        "tst_dir": "/kaggle/input/vsqad2022398x224/test_frames",
+        "frame_indices_list": [
+            [
+                3,
+                4,
+                0,
+                2,
+                1
+            ],
+            [
+                8,
+                9,
+                5,
+                7,
+                6
+            ],
+            [
+                13,
+                14,
+                10,
+                12,
+                11
+            ],
+            [
+                18,
+                19,
+                15,
+                17,
+                16
+            ],
+            [
+                23,
+                24,
+                20,
+                22,
+                21
+            ]
+        ],
+        "drop_reference": true
+    },
+    "model": {
+        "normalize": true,
+        "augment": true,
+        "bs": 8,
+        "arch_name": "resnet50",
+        "model_name": "sequence_stm",
+        "pretrained": true,
+        "loss_name": "ce",
+        "fine_tune": false,
+        "freeze_epochs": 1,
+        "epochs": 50,
+        "early_stop_patience": 10,
+        "lr": 0.0001
+    },
+    "seed": 42,
+    "idea": "seq-unordered"
+}

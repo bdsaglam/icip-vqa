@@ -8,6 +8,8 @@
     "Metric": "metric.html",
     "Model": "model.html",
     "Evaluation": "evaluation.html",
-    "Inference": "inference.html"
+    "Inference": "inference.html",
+    "Experiment utils": "experiment.html",
+    "Inference for single-task learning": "inference_stl.html"
   }
 }

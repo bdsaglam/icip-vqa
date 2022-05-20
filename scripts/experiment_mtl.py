@@ -18,6 +18,7 @@ from vqa.loss import *
 from vqa.metric import *
 from vqa.evaluation import *
 from vqa.inference import *
+from vqa.experiment import *
 
 
 DEVICE = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
@@ -29,10 +30,12 @@ def make_model(dls, arch_name, model_name, pretrained):
     model = model_map[model_name](arch=arch, n_distortion=len(dls.vocab[0]), n_sev=len(dls.vocab[1]), pretrained=pretrained).to(DEVICE)
     return model
 
+
 loss_map = dict(ce=CrossEntropyLossFlat, focal=FocalLossFlat)
 def make_loss(distortion_loss_name, severity_loss_name, loss_weights):
     return CombinedLoss(loss_map[distortion_loss_name](), loss_map[severity_loss_name](), weight=loss_weights)
-    
+
+
 def train_eval_infer(
     df,
     tst_df,
@@ -45,11 +48,13 @@ def train_eval_infer(
     pretrained: bool = True, 
     distortion_loss_name: str = 'ce', 
     severity_loss_name: str = 'ce', 
-    loss_weights: list=(1.0, 1.0),
-    fine_tune: bool=True,
-    freeze_epochs: int=10,
-    epochs: int=40,
+    loss_weights: list = (1.0, 1.0),
+    fine_tune: bool = True,
+    freeze_epochs: int = 10,
+    epochs: int = 40,
+    early_stop_patience = None,
     lr: float = None,
+    wandb_run = None,
 ):
     batch_tfms = []
     if normalize:
@@ -81,19 +86,24 @@ def train_eval_infer(
     severity_accuracy = route_to_metric(1, accuracy)
     severity_accuracy.func.__name__ = 'severity_accuracy'
 
+    # callbacks
+    cbs = [SaveModelCallback()]
+    if early_stop_patience:
+        cbs.append(EarlyStoppingCallback(patience=early_stop_patience))
+    if wandb_run:
+        cbs.append(WandbCallback())
+    
+    # learner
     learn = Learner(
         dls, 
         model=model,
         loss_func= make_loss(distortion_loss_name, severity_loss_name, loss_weights),
         metrics=[distortion_f1_macro, distortion_accuracy, severity_f1_macro, severity_accuracy],
         splitter=model.splitter,
-        cbs=[
-            SaveModelCallback(),
-            WandbCallback(),
-            EarlyStoppingCallback(patience=10),
-        ]
+        cbs=cbs,
     )
-    if DEVICE.type!='cpu': learn = learn.to_fp16()
+    if DEVICE.type!='cpu': 
+        learn = learn.to_fp16()
 
     if lr is None:
         lr_res = learn.lr_find(start_lr=1e-6, end_lr=1e-1, num_it=200)
@@ -107,98 +117,52 @@ def train_eval_infer(
             learn.fit_one_cycle(epochs, lr)
 
     # evaluation
-    learn = learn.load('model')
+    try:
+        learn = learn.load('model')
+    except FileNotFoundError:
+        print('No saved model found.')
+    
     probs, targets, preds = learn.get_preds(dl=dls.valid, with_decoded=True)
     clf_report, scores = evaluate_mtl(dls.vocab, probs, targets, preds)
-    with open('classification_report.txt', 'w') as f:
-        f.write(clf_report)
-    artifact = wandb.Artifact('classification_report', type='perf')
-    artifact.add_file('classification_report.txt')
-    wandb_run.log_artifact(artifact)
-    wandb.config.update(scores)
+    log_model_evaluation(clf_report, scores, wandb_run)
     
     # inference
     inference_df = get_test_inferences(dls, learn, tst_df)
-    lines = make_submission(inference_df['distortion_inference'], inference_df['severity_inference'])
-    artifact = wandb.Artifact('test-predictions', type='perf')
-    artifact.add_file('predict.txt')
-    wandb_run.log_artifact(artifact)
+    lines = make_submission_preds(inference_df['distortion_pred'], inference_df['severity_pred'])
+    log_preds_for_competition(lines, wandb_run)
     
     return dls, learn
 
-
-def prepare_train_dataframe(df, directory, frame_indices_list, drop_reference):
-    df['video_path'] = df['video_name'].apply(lambda vn: str(Path(directory) / vn))
-    if 'raw_label' in df.columns:
-        df['label'] = df['raw_label']
-    df['label'] = df['label'].apply(tuple)
-    return (
-        df
-        .pipe(lambda dataf: dataf[dataf.label != ('D0', 'S0')])
-        .pipe(make_framer(frame_indices_list))
-        .pipe(remove_corrupt_video_frames)
-    )
-
-def make_dataframes(train_dataframe_path, train_dir, tst_dir, frame_indices_list, drop_reference):
-    df = prepare_train_dataframe(pd.read_json(train_dataframe_path), train_dir, frame_indices_list, drop_reference)
-    tst_df = make_test_dataframe(Path(tst_dir), frame_indices_list=frame_indices_list)
-    assert_stratied_split(df, 'label')
-    return df, tst_df
-
-def setup_experiment():
-    import os
-    from pathlib import Path
-    from datetime import datetime
-    experiment_id = datetime.now().isoformat().rsplit('.', 1)[0].replace(':', '-')
-    experiment_dir = Path('./experiments') / experiment_id
-    experiment_dir.mkdir(parents=True, exist_ok=True)
-    os.chdir(experiment_dir)
-
-def resolve_paths(config):
-    for field_path in ['data.train_dataframe_path', 'data.train_dir', 'data.tst_dir']:
-        fields = field_path.split('.')
-        node = config
-        for field in fields[:-1]:
-            node = node[field]
-        node[fields[-1]] = str(Path(node[fields[-1]]).resolve())
-    return config
 
 def run_experiment(config):
     seed = config.get('seed')
     if seed is not None:
         set_seed(seed)
-
     # wandb
-    wandb_run = wandb.init(
-        project=config['wandb']['wandb_project'], 
-        entity=config['wandb']['wandb_username']
-    )
-    wandb.config.update(flatten_dict(config))
-
+    wandb_run = None
+    if config.get('wandb', dict()).get('wandb_enabled', False):
+        wandb_run = wandb.init(
+            project=config['wandb']['wandb_project'], 
+            entity=config['wandb']['wandb_username']
+        )
+        wandb.config.update(flatten_dict(config))
     # data
     df, tst_df = make_dataframes(**config['data'])
+    assert_stratied_split(df, 'label')
     print(len(df), L(df.distortion.unique().tolist()), L(df.severity.unique().tolist()))
-
     # experiment
-    setup_experiment()
     dls, learn = train_eval_infer(
         df,
         tst_df,
-        **config['model']
+        **config['model'],
+        wandb_run=wandb_run,
     )
-
     # log dataset
-    train_dataframe = df[['video_name', 'frames', 'scene', 'label', 'distortion', 'severity', 'is_valid']]
-    train_dataframe.to_json('train_dataframe.json', orient='records')
-    artifact = wandb.Artifact('train_dataframe', type='dataset')
-    artifact.add_file('train_dataframe.json')
-    wandb_run.log_artifact(artifact)
-    wandb.log(dict(
-        df=wandb.Table(dataframe=train_dataframe),
-    ))
-
+    log_training_dataset(df, wandb_run)
     # wrap up
-    wandb.finish()
+    if wandb_run:
+        wandb.finish()
+    return df, tst_df, dls, learn    
 
 
 if __name__ == "__main__":
@@ -211,7 +175,10 @@ if __name__ == "__main__":
     
     with open(args.cfg) as f:
         config = json.load(f)
-    resolve_paths(config)
     
-    run_experiment(config)
+    for field_path in ['data.train_dataframe_path', 'data.train_dir', 'data.tst_dir']:
+        resolve_path(config, field_path)
+    
+    with set_dir(make_experiment_dir()):
+        run_experiment(config)
     

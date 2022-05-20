@@ -2,42 +2,44 @@
 
 __all__ = ['parse_distortion_severity', 'parse_scene', 'label_dataframe', 'make_dataframe_splitter', 'populate_frames',
            'make_framer', 'remove_corrupt_video_frames', 'make_dataframe', 'make_train_dataframe',
-           'assert_stratied_split', 'make_test_dataframe']
+           'assert_stratied_split', 'make_test_dataframe', 'prepare_train_dataframe']
 
 # Cell
-
 from pathlib import Path
 import pandas as pd
+from fastcore.basics import *
+from fastcore.xtras import *
+
+from .utils import most_common
 
 # Cell
-
 import re
 
-_pattern = re.compile('_(D\d)')
+_disto_pattern = re.compile('_(D\d)')
+_sev_pattern = re.compile('_(\d)')
 def parse_distortion_severity(video_name):
-    distortions = _pattern.findall(video_name)
+    distortions = _disto_pattern.findall(video_name)
+    sevs = _sev_pattern.findall(video_name)
     if len(distortions)==0: # reference video
-        return 'D0', 'S0'
-    sev_level = int(video_name[-1])
-    assert sev_level in {1,2,3,4,5}
-    return '_'.join(distortions), f"S{sev_level}"
-
-# Cell
+        return []
+    if len(sevs)==1:
+        sevs = sevs*len(distortions)
+    assert len(distortions)==len(sevs)
+    sevs = [int(sev) for sev in sevs]
+    return sorted(f"{disto}_{sev}" for disto, sev in zip(distortions, sevs))
 
 def parse_scene(video_name):
     return video_name.split("_D", 1)[0].lower()
 
 # Cell
-
 def label_dataframe(df):
     df['scene'] = df['video_name'].apply(parse_scene)
-    df['label'] = df['video_name'].apply(parse_distortion_severity)
-    df['distortion'] = df['label'].apply(lambda t: t[0])
-    df['severity'] = df['label'].apply(lambda t: t[1])
+    df['label'] = df['video_name'].apply(parse_distortion_severity).apply(lambda labels: 'R0_0' if len(labels)==0 else ','.join(labels))
+    df['distortion'] = df['label'].apply(lambda s: '_'.join(ds.split('_')[0] for ds in s.split(',')))
+    df['severity'] = df['label'].apply(lambda s: most_common(ds.split('_')[1] for ds in s.split(',')))
     return df
 
 # Cell
-
 from sklearn.model_selection import train_test_split
 
 def make_dataframe_splitter(valid_pct, strata='label'):
@@ -49,7 +51,6 @@ def make_dataframe_splitter(valid_pct, strata='label'):
     return stratified_split
 
 # Cell
-
 def populate_frames(df, frame_indices_list):
     for frame_indices in frame_indices_list:
         df = df.copy()
@@ -61,7 +62,6 @@ def make_framer(frame_indices_list):
     return lambda dataf: pd.concat(list(populate_frames(dataf, frame_indices_list)), axis=0)
 
 # Cell
-
 def remove_corrupt_video_frames(df):
     video_names = [
      'Concorde_place_D1_D5_1',
@@ -77,15 +77,13 @@ def remove_corrupt_video_frames(df):
     return df[~tbd_idx].copy()
 
 # Cell
-
 def make_dataframe(root):
-    video_paths = sorted([str(p) for p in root.ls() if not p.name.startswith('.')])
+    video_paths = sorted([str(p) for p in Path(root).ls() if not p.name.startswith('.')])
     df = pd.DataFrame(data=dict(video_path=video_paths))
     df['video_name'] = df['video_path'].apply(lambda p: Path(p).name)
     return df
 
 # Cell
-
 def make_train_dataframe(root, valid_pct, frame_indices_list):
     return (
         make_dataframe(root)
@@ -96,7 +94,6 @@ def make_train_dataframe(root, valid_pct, frame_indices_list):
     )
 
 # Cell
-
 def assert_stratied_split(df, label_col):
     train_df, val_df = df[~df['is_valid']], df[df['is_valid']]
     ratio = len(val_df) / len(train_df)
@@ -107,10 +104,18 @@ def assert_stratied_split(df, label_col):
     assert ratio - 0.02 < label_freqs['ratio'].mean() < ratio + 0.02, label_freqs['ratio'].min()
 
 # Cell
-
 def make_test_dataframe(root, frame_indices_list):
     return (
         make_dataframe(root)
         .pipe(label_dataframe)
+        .pipe(make_framer(frame_indices_list))
+    )
+
+# Cell
+def prepare_train_dataframe(df, video_dir, frame_indices_list, drop_reference=True):
+    df['video_path'] = df['video_name'].apply(lambda vn: str(Path(video_dir) / vn))
+    return (
+        df
+        .pipe(lambda dataf: dataf[dataf.label != 'R0_0'] if drop_reference else dataf)
         .pipe(make_framer(frame_indices_list))
     )
