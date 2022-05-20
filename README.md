@@ -16,5 +16,5 @@ Prepare a config file, see example config in `./scripts/` directory.
 
 ```sh
 wandb login --relogin
-python ./scripts/experiment.py --cfg /path/to/config.json
+python ./scripts/experiment_mtl.py --cfg ./scripts/configs/config-mtl.json
 ```
