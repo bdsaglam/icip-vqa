@@ -130,7 +130,7 @@ def run_experiment(config):
         wandb.config.update(flatten_dict(config))
     # data
     df, tst_df = make_dataframes(**config['data'])
-    assert_stratied_split(df, 'label')
+    assert_stratified_split(df, 'label')
     print(len(df), L(df.label.unique().tolist()))
     # experiment
     dls, learn = train_eval_infer(

@@ -2,7 +2,7 @@
 
 __all__ = ['parse_distortion_severity', 'parse_scene', 'label_dataframe', 'make_dataframe_splitter', 'populate_frames',
            'make_framer', 'remove_corrupt_video_frames', 'make_dataframe', 'make_train_dataframe',
-           'assert_stratied_split', 'make_test_dataframe', 'prepare_train_dataframe']
+           'assert_stratified_split', 'make_test_dataframe', 'prepare_train_dataframe']
 
 # Cell
 from pathlib import Path
@@ -94,7 +94,7 @@ def make_train_dataframe(root, valid_pct, frame_indices_list):
     )
 
 # Cell
-def assert_stratied_split(df, label_col):
+def assert_stratified_split(df, label_col):
     train_df, val_df = df[~df['is_valid']], df[df['is_valid']]
     ratio = len(val_df) / len(train_df)
     label_freqs = pd.concat([train_df[label_col].value_counts(), val_df[label_col].value_counts() ], axis=1, join='outer')
