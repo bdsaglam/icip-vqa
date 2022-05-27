@@ -87,7 +87,7 @@ class SequenceSTM(Module):
         ))
         n_features = dummy_eval(self.encoder.module, (224, 224)).shape[1]
         self.rnn = nn.LSTM(n_features, n_features, num_layers=num_rnn_layers, batch_first=True)
-        self.head = LinBnDrop(num_rnn_layers * n_features, n_out)
+        self.head = create_head(num_rnn_layers * n_features, n_out)[2:]
 
     def forward(self, x):
         x = self.encoder(torch.stack(x, dim=1))
@@ -111,7 +111,7 @@ class SequenceMTM(Module):
         ))
         n_features = dummy_eval(self.encoder.module, (224, 224)).shape[1]
         self.rnn = nn.LSTM(n_features, n_features, num_layers=num_rnn_layers, batch_first=True)
-        self.head = LinBnDrop(num_rnn_layers * n_features, n_distortion + n_sev)
+        self.head = create_head(num_rnn_layers * n_features, n_out)[2:]
 
     def forward(self, x):
         x = self.encoder(torch.stack(x, dim=1))
