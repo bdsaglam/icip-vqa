@@ -34,7 +34,7 @@ def parse_scene(video_name):
 # Cell
 def label_dataframe(df):
     df['scene'] = df['video_name'].apply(parse_scene)
-    df['label'] = df['video_name'].apply(parse_distortion_severity).apply(lambda labels: 'R0_0' if len(labels)==0 else ','.join(labels))
+    df['label'] = df['video_name'].apply(parse_distortion_severity).apply(lambda labels: 'D0_0' if len(labels)==0 else ','.join(labels))
     df['distortion'] = df['label'].apply(lambda s: '_'.join(ds.split('_')[0] for ds in s.split(',')))
     df['severity'] = df['label'].apply(lambda s: most_common(ds.split('_')[1] for ds in s.split(',')))
     return df
@@ -116,6 +116,6 @@ def prepare_train_dataframe(df, video_dir, frame_indices_list, drop_reference=Tr
     df['video_path'] = df['video_name'].apply(lambda vn: str(Path(video_dir) / vn))
     return (
         df
-        .pipe(lambda dataf: dataf[dataf.label != 'R0_0'] if drop_reference else dataf)
+        .pipe(lambda dataf: dataf[dataf.label != 'D0_0'] if drop_reference else dataf)
         .pipe(make_framer(frame_indices_list))
     )

@@ -77,7 +77,6 @@ def make_experiment_dir(root='./experiments', name=None):
 # Cell
 def make_dataframes(train_dataframe_path, train_dir, tst_dir, frame_indices_list, drop_reference):
     df = pd.read_json(train_dataframe_path)
-    df['label'] = df['label'].replace('R_0', 'R0_0') # todo: remove this line after updating dataset on kaggle
     df = prepare_train_dataframe(df, train_dir, frame_indices_list, drop_reference)
     tst_df = make_test_dataframe(tst_dir, frame_indices_list)
     return df, tst_df
