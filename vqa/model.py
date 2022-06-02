@@ -82,7 +82,7 @@ class SequenceSTM(Module):
         store_attr()
         self.encoder = TimeDistributed(nn.Sequential(
             create_body(arch, pretrained=pretrained),
-            nn.AdaptiveAvgPool2d(1),
+            AdaptiveConcatPool2d(1),
             Flatten()
         ))
         n_features = dummy_eval(self.encoder.module, (224, 224)).shape[1]
@@ -106,7 +106,7 @@ class SequenceMTM(Module):
         store_attr()
         self.encoder = TimeDistributed(nn.Sequential(
             create_body(arch, pretrained=pretrained),
-            nn.AdaptiveAvgPool2d(1),
+            AdaptiveConcatPool2d(1),
             Flatten()
         ))
         n_features = dummy_eval(self.encoder.module, (224, 224)).shape[1]
