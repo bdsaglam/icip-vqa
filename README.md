@@ -12,7 +12,7 @@ pip install .[dev]
 
 ## Run experiment
 
-Download [the dataset from Kaggle](https://www.kaggle.com/datasets/bdsaglam/vsqad2022398x224).
+Download [the dataset from Kaggle](https://www.kaggle.com/datasets/bdsaglam/vsqad2022480x270).
 
 Prepare a config file, see example config in `./scripts/` directory.
 
